@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scout Collection Portugal — Catálogo de Miniaturas</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root {
+    /* Tema vermelho */
+    --navy:#9b1c1c; --navy-dark:#6f1414; --navy-mid:#b83232; --navy-soft:#f6dcdc; --navy-pale:#fbf1f1;
+    --text2:#a04848; --text3:#bf8a8a; --border:#e6c5c5; --border-lt:#f4e2e2;
+    --radius:10px; --shadow:0 2px 16px rgba(155,28,28,0.09);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:Georgia,serif; background:#fff; color:var(--navy); min-height:100vh; display:flex; flex-direction:column; align-items:center; }
+
+  .site-header { width:100%; padding:28px 20px 20px; display:flex; flex-direction:column; align-items:center; margin-bottom:32px; }
+  #header-logo { width:240px; height:auto; display:none; margin:0 auto; cursor:pointer; }
+  .brand-title { font-size:26px; font-weight:bold; letter-spacing:3px; text-transform:uppercase; text-align:center; line-height:1.2; cursor:pointer; }
+  .brand-sub { font-size:15px; letter-spacing:3px; text-transform:uppercase; font-family:'Courier New',monospace; font-weight:bold; margin-top:12px; text-align:center; }
+  .logo-hint { font-family:'Courier New',monospace; font-size:10px; color:var(--text3); margin-top:8px; }
+  .logo-hint button { background:none; border:none; color:var(--navy-mid); font:inherit; cursor:pointer; text-decoration:underline; padding:0 2px; }
+
+  .wrap { width:100%; max-width:700px; padding:0 20px; }
+  .card { background:#fff; border:1px solid var(--border-lt); border-radius:var(--radius); box-shadow:var(--shadow); padding:24px 28px; margin-bottom:16px; }
+  .card h2 { font-size:10px; font-family:'Courier New',monospace; font-weight:normal; color:var(--text3); letter-spacing:3px; text-transform:uppercase; margin-bottom:16px; display:flex; align-items:center; gap:10px; }
+  .card h2::before { content:''; width:18px; height:2px; background:var(--navy); flex-shrink:0; }
+
+  .drop-zone { border:2px dashed var(--border); border-radius:var(--radius); padding:36px 24px; text-align:center; transition:all .2s; background:var(--navy-pale); }
+  .drop-zone.drag-over { border-color:var(--navy); background:var(--navy-soft); }
+  .drop-zone svg { width:36px; height:36px; color:var(--text3); margin:0 auto 12px; display:block; }
+  .drop-zone strong { font-size:15px; display:block; margin-bottom:5px; }
+  .drop-zone p { font-family:'Courier New',monospace; font-size:11px; color:var(--text3); }
+  .pick-row { display:flex; gap:10px; justify-content:center; margin-top:18px; flex-wrap:wrap; }
+  .pick-btn { padding:10px 18px; border-radius:6px; border:1px solid var(--navy); background:var(--navy); color:#fff; font:12px 'Courier New',monospace; letter-spacing:1px; cursor:pointer; }
+  .pick-btn.alt { background:#fff; color:var(--navy); }
+  .pick-btn:hover { opacity:.85; }
+  .hidden-input { display:none; }
+
+  .options-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .option-group.full { grid-column:1 / -1; }
+  .option-group label { display:block; font-size:10px; font-family:'Courier New',monospace; color:var(--text3); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:5px; }
+  .option-group select, .option-group input[type=text] {
+    width:100%; padding:9px 12px; border:1px solid var(--border); border-radius:6px; font:14px Georgia,serif; color:var(--navy); background:#fff;
+    appearance:none; -webkit-appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%239b1c1c' d='M5 7L0 2h10z'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 12px center; cursor:pointer;
+  }
+  .option-group input[type=text] { background-image:none; cursor:text; }
+  .option-group select:focus, .option-group input[type=text]:focus { outline:none; border-color:var(--navy-mid); box-shadow:0 0 0 3px rgba(155,28,28,.08); }
+
+  #preview-strip, #progress-section { display:none; }
+  .preview-info { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; gap:10px; }
+  .preview-info span { font-family:'Courier New',monospace; font-size:12px; color:var(--text2); }
+  .clear-btn { font:11px 'Courier New',monospace; color:#a02020; background:none; border:none; cursor:pointer; padding:4px 8px; border-radius:4px; }
+  .clear-btn:hover { background:#fdf0ee; }
+  .thumbs { display:grid; grid-template-columns:repeat(auto-fill,minmax(52px,1fr)); gap:5px; max-height:200px; overflow-y:auto; padding-right:4px; }
+  .thumb { aspect-ratio:1; border-radius:5px; overflow:hidden; border:1px solid var(--border-lt); background:var(--navy-pale); }
+  .thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+  .thumbs::-webkit-scrollbar { width:4px; }
+  .thumbs::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+
+  .progress-bar-wrap { background:var(--navy-pale); border-radius:99px; height:6px; overflow:hidden; margin:12px 0 8px; }
+  .progress-bar { height:100%; background:var(--navy); width:0%; transition:width .2s; }
+  .progress-label { font:11px 'Courier New',monospace; color:var(--text3); text-align:right; }
+
+  .gen-btn { width:100%; padding:15px; background:var(--navy); color:#fff; border:none; border-radius:var(--radius); font:14px 'Courier New',monospace; letter-spacing:2px; text-transform:uppercase; cursor:pointer; }
+  .gen-btn:hover:not(:disabled) { background:var(--navy-dark); }
+  .gen-btn:disabled { opacity:.35; cursor:not-allowed; }
+
+  #result-section { display:none; background:#eaf4f0; border:1px solid #a8d5bc; border-radius:var(--radius); padding:16px 24px; align-items:center; justify-content:space-between; gap:16px; }
+  #result-section p { font:12px 'Courier New',monospace; color:#1a5c3a; }
+  .download-btn { white-space:nowrap; padding:10px 22px; background:var(--navy); color:#fff; border:none; border-radius:6px; font:12px 'Courier New',monospace; letter-spacing:1px; cursor:pointer; }
+
+  footer { width:100%; padding:28px 20px 24px; display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center; margin-top:auto; padding-top:48px; }
+  footer .footer-sub { font-size:10px; letter-spacing:3px; text-transform:uppercase; font-family:'Courier New',monospace; font-weight:bold; }
+  footer .footer-brand { font-size:18px; font-weight:bold; letter-spacing:3px; text-transform:uppercase; font-family:Georgia,serif; }
+  footer .footer-version { font:11px 'Courier New',monospace; color:var(--text2); letter-spacing:0.5px; }
+  footer .footer-link { font:13px 'Courier New',monospace; color:var(--navy-mid); text-decoration:none; }
+  footer .footer-link:hover { text-decoration:underline; }
+  footer .footer-note { font:12px 'Courier New',monospace; color:var(--text3); opacity:.8; margin-top:6px; }
+
+  @media (max-width:560px) {
+    .options-grid { grid-template-columns:1fr; }
+    .brand-title { font-size:20px; }
+    .card { padding:20px 18px; }
+    #result-section { flex-direction:column; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <img id="header-logo" alt="Logótipo" title="Clica para mudar o logótipo">
+  <div class="brand-title" id="header-text" title="Clica para adicionar um logótipo">Scout Collection Portugal</div>
+  <div class="brand-sub">Criar um Catálogo</div>
+  <div class="logo-hint" style="display:none">
+    <button id="logo-btn">adicionar logótipo</button><span id="logo-remove-wrap" style="display:none"> · <button id="logo-remove">remover</button></span>
+  </div>
+  <input type="file" id="logo-input" class="hidden-input" accept="image/*">
+</header>
+
+<div class="wrap">
+
+  <!-- Imagens -->
+  <div class="card">
+    <h2>Imagens</h2>
+    <div class="drop-zone" id="drop-zone">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/>
+      </svg>
+      <strong>Escolhe uma pasta ou arrasta-a para aqui</strong>
+      <p>JPG · PNG · GIF · BMP · WEBP — incluindo subpastas</p>
+      <div class="pick-row">
+        <button class="pick-btn" id="pick-folder">📁 Escolher pasta</button>
+        <button class="pick-btn alt" id="pick-files">Escolher imagens</button>
+      </div>
+    </div>
+    <input type="file" id="folder-input" class="hidden-input" webkitdirectory directory multiple>
+    <input type="file" id="file-input" class="hidden-input" multiple accept="image/*">
+  </div>
+
+  <!-- Preview -->
+  <div class="card" id="preview-strip">
+    <div class="preview-info">
+      <span id="file-count">0 imagens</span>
+      <button class="clear-btn" id="clear-btn">✕ limpar</button>
+    </div>
+    <div class="thumbs" id="thumbs"></div>
+  </div>
+
+  <!-- Configuração -->
+  <div class="card">
+    <h2>Configuração</h2>
+    <div class="options-grid">
+      <div class="option-group">
+        <label>Colunas</label>
+        <select id="cols">
+          <option value="3">3 colunas</option>
+          <option value="4">4 colunas</option>
+          <option value="5">5 colunas</option>
+          <option value="6" selected>6 colunas</option>
+        </select>
+      </div>
+      <div class="option-group">
+        <label>Linhas por página</label>
+        <select id="rows">
+          <option value="3">3 linhas</option>
+          <option value="4">4 linhas</option>
+          <option value="5">5 linhas</option>
+          <option value="6" selected>6 linhas</option>
+        </select>
+      </div>
+      <div class="option-group">
+        <label>Ordenação</label>
+        <select id="sort-order">
+          <option value="name-asc">Nome A → Z</option>
+          <option value="name-desc">Nome Z → A</option>
+          <option value="original">Ordem de seleção</option>
+        </select>
+      </div>
+      <div class="option-group">
+        <label>Mostrar nome</label>
+        <select id="show-name">
+          <option value="stem">Nome sem extensão</option>
+          <option value="full">Nome completo</option>
+          <option value="none">Não mostrar</option>
+        </select>
+      </div>
+      <div class="option-group">
+        <label>Margem (mm)</label>
+        <select id="margin">
+          <option value="8">8 mm — compacto</option>
+          <option value="10" selected>10 mm — normal</option>
+          <option value="15">15 mm — espaçoso</option>
+        </select>
+      </div>
+      <div class="option-group">
+        <label>Nome do catálogo</label>
+        <input type="text" id="pdf-name" value="catalogo-miniaturas" placeholder="catalogo-miniaturas">
+      </div>
+      <div class="option-group full">
+        <label>Nome do colecionador</label>
+        <input type="text" id="footer-name-input" value="Filipe Francisco" placeholder="O teu nome">
+      </div>
+    </div>
+  </div>
+
+  <!-- Progresso -->
+  <div class="card" id="progress-section">
+    <h2>A gerar</h2>
+    <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+    <p class="progress-label" id="progress-label">0%</p>
+  </div>
+
+</div>
+
+<div style="width:100%;max-width:700px;padding:0 20px;display:flex;flex-direction:column;gap:12px;">
+  <button class="gen-btn" id="gen-btn" disabled>Gerar Catálogo <span style="font-size:30px;font-weight:900;">→</span></button>
+  <div id="result-section">
+    <p id="result-msg"></p>
+    <button class="download-btn" id="dl-btn">⬇ Descarregar</button>
+  </div>
+</div>
+
+<footer>
+  <span class="footer-brand">Scout Collection Portugal</span>
+  <span class="footer-sub">Coleção Pessoal de Objetos Escutistas</span>
+  <a class="footer-link" href="https://sites.google.com/view/scoutcollectionportugal/" target="_blank">sites.google.com/view/scoutcollectionportugal</a>
+  <span class="footer-version">App versão 1.0 (14.10.2026)</span>
+  <p class="footer-note">todos os ficheiros são processados localmente no browser — nenhuma imagem é enviada para servidores</p>
+</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+const IMG_RE = /\.(jpe?g|png|gif|bmp|webp)$/i;
+let files = [], pdfBlob = null, logoDataURL = null, logoRatio = 1;
+
+/* ── Armazenamento local (opcional) ── */
+function store(k, v) { try { v === null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} }
+function recall(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+
+/* ── Logótipo ── */
+function applyLogo(dataURL) {
+  logoDataURL = dataURL;
+  const img = $('header-logo');
+  if (dataURL) {
+    const probe = new Image();
+    probe.onload = () => { logoRatio = probe.naturalWidth / probe.naturalHeight; };
+    probe.src = dataURL;
+    img.src = dataURL; img.style.display = 'block';
+    $('header-text').style.display = 'none';
+    $('logo-btn').textContent = 'mudar logótipo';
+    $('logo-remove-wrap').style.display = 'inline';
+  } else {
+    img.removeAttribute('src'); img.style.display = 'none';
+    $('header-text').style.display = 'block';
+    $('logo-btn').textContent = 'adicionar logótipo';
+    $('logo-remove-wrap').style.display = 'none';
+  }
+}
+$('logo-btn').onclick = $('header-logo').onclick = $('header-text').onclick = () => $('logo-input').click();
+$('logo-remove').onclick = () => { applyLogo(null); store('scm-logo', null); };
+$('logo-input').onchange = async () => {
+  const f = $('logo-input').files[0]; $('logo-input').value = '';
+  if (!f) return;
+  const img = await loadImage(f);
+  const max = 600, r = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  const c = document.createElement('canvas');
+  c.width = Math.round(img.naturalWidth * r); c.height = Math.round(img.naturalHeight * r);
+  c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+  const data = c.toDataURL('image/png');
+  applyLogo(data); store('scm-logo', data);
+};
+applyLogo(recall('scm-logo'));
+
+/* ── Nome no rodapé ── */
+(function () {
+  const inp = $('footer-name-input');
+  const s = recall('scm-footer-name'); if (s !== null) inp.value = s;
+  function sync() {
+    store('scm-footer-name', inp.value);
+  }
+  inp.addEventListener('input', sync); sync();
+})();
+
+/* ── Seleção de imagens ── */
+const dropZone = $('drop-zone');
+$('pick-folder').onclick = e => { e.stopPropagation(); $('folder-input').click(); };
+$('pick-files').onclick  = e => { e.stopPropagation(); $('file-input').click(); };
+function setNameFromFolder(path) {
+  const root = (path || '').split('/')[0];
+  if (root && path.includes('/')) $('pdf-name').value = root;
+}
+$('folder-input').onchange = () => { const fl = $('folder-input').files; if (fl[0]) setNameFromFolder(fl[0].webkitRelativePath); addFiles([...$('folder-input').files].map(f => withPath(f, f.webkitRelativePath))); $('folder-input').value = ''; };
+$('file-input').onchange   = () => { addFiles([...$('file-input').files].map(f => withPath(f, f.name))); $('file-input').value = ''; };
+
+function withPath(f, path) { f._path = path || f.name; return f; }
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', async e => {
+  e.preventDefault(); dropZone.classList.remove('drag-over');
+  const items = [...(e.dataTransfer.items || [])];
+  const entries = items.map(i => i.webkitGetAsEntry && i.webkitGetAsEntry()).filter(Boolean);
+  if (entries.length) {
+    const out = [];
+    for (const en of entries) await walk(en, out);
+    if (entries.length === 1 && entries[0].isDirectory) $('pdf-name').value = entries[0].name;
+    addFiles(out);
+  } else {
+    addFiles([...e.dataTransfer.files].map(f => withPath(f, f.name)));
+  }
+});
+
+async function walk(entry, out) {
+  if (entry.isFile) {
+    const f = await new Promise((res, rej) => entry.file(res, rej));
+    out.push(withPath(f, entry.fullPath.replace(/^\//, '')));
+  } else if (entry.isDirectory) {
+    const reader = entry.createReader();
+    let batch;
+    do {
+      batch = await new Promise((res, rej) => reader.readEntries(res, rej));
+      for (const ch of batch) await walk(ch, out);
+    } while (batch.length);
+  }
+}
+
+function addFiles(newFiles) {
+  const imgs = newFiles.filter(f => IMG_RE.test(f.name) || (f.type || '').startsWith('image/'));
+  const existing = new Set(files.map(f => f._path + f.size));
+  imgs.forEach(f => { if (!existing.has(f._path + f.size)) { files.push(f); existing.add(f._path + f.size); } });
+  renderPreviews(); updateGenBtn();
+}
+
+$('clear-btn').onclick = () => {
+  files = []; renderPreviews(); updateGenBtn();
+  $('result-section').style.display = 'none';
+};
+
+function folderOf(f) {
+  const parts = f._path.split('/');
+  parts.pop();
+  if (parts.length > 1) parts.shift();          // remove a pasta raiz escolhida
+  return parts.join(' / ');
+}
+
+function renderPreviews() {
+  const thumbs = $('thumbs');
+  thumbs.querySelectorAll('img').forEach(i => URL.revokeObjectURL(i.src));
+  thumbs.innerHTML = '';
+  if (!files.length) { $('preview-strip').style.display = 'none'; return; }
+  $('preview-strip').style.display = 'block';
+  const folders = new Set(files.map(folderOf)).size;
+  $('file-count').textContent = files.length + ' imagem' + (files.length !== 1 ? 's' : '') +
+    (folders > 1 ? ' em ' + folders + ' pastas' : '');
+  files.slice(0, 120).forEach(f => {
+    const d = document.createElement('div'); d.className = 'thumb'; d.title = f._path;
+    const i = document.createElement('img'); i.loading = 'lazy'; i.src = URL.createObjectURL(f);
+    d.appendChild(i); thumbs.appendChild(d);
+  });
+  if (files.length > 120) {
+    const more = document.createElement('div'); more.className = 'thumb';
+    more.style.cssText = 'display:flex;align-items:center;justify-content:center;font:11px Courier New,monospace;color:var(--text3);';
+    more.textContent = '+' + (files.length - 120);
+    thumbs.appendChild(more);
+  }
+}
+
+function updateGenBtn() { $('gen-btn').disabled = files.length === 0; }
+
+function sortFiles(list) {
+  const order = $('sort-order').value;
+  const s = [...list];
+  if (order === 'name-asc')  s.sort((a, b) => a.name.localeCompare(b.name, 'pt', { numeric: true }));
+  if (order === 'name-desc') s.sort((a, b) => b.name.localeCompare(a.name, 'pt', { numeric: true }));
+  return s;
+}
+
+function getLabel(name) {
+  const mode = $('show-name').value;
+  if (mode === 'none') return '';
+  return mode === 'stem' ? name.replace(/\.[^.]+$/, '') : name;
+}
+
+function loadImage(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => { resolve(img); URL.revokeObjectURL(url); };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(); };
+    img.src = url;
+  });
+}
+
+function imgToDataURL(img, MAX_PX = 400) {
+  let w = img.naturalWidth, h = img.naturalHeight;
+  const r = Math.min(1, MAX_PX / Math.max(w, h));
+  w = Math.max(1, Math.round(w * r)); h = Math.max(1, Math.round(h * r));
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, w, h);  // fundo branco para PNG transparentes
+  ctx.drawImage(img, 0, 0, w, h);
+  return c.toDataURL('image/jpeg', 0.7);
+}
+
+/* ── PDF ── */
+$('gen-btn').onclick = generatePDF;
+
+async function generatePDF() {
+  const { jsPDF } = window.jspdf || {};
+  if (!jsPDF) { alert('Não foi possível carregar a biblioteca de PDF. Abre a app com ligação à internet pelo menos uma vez.'); return; }
+
+  const cols    = parseInt($('cols').value);
+  const rows    = parseInt($('rows').value);
+  const perPage = cols * rows;
+  const margin  = parseFloat($('margin').value);
+  const catalogName   = $('pdf-name').value.trim() || 'catalogo-miniaturas';
+  const pdfName       = catalogName + '.pdf';
+  const showName      = $('show-name').value !== 'none';
+  const collectorName = $('footer-name-input').value.trim();
+  const grouped       = false;
+
+  // Construir páginas
+  const pages = [];
+  if (grouped) {
+    const groups = new Map();
+    files.forEach(f => { const k = folderOf(f); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(f); });
+    const keys = [...groups.keys()].sort((a, b) => a.localeCompare(b, 'pt', { numeric: true }));
+    keys.forEach(k => {
+      const list = sortFiles(groups.get(k));
+      for (let i = 0; i < list.length; i += perPage) pages.push({ folder: k, items: list.slice(i, i + perPage) });
+    });
+  } else {
+    const list = sortFiles(files);
+    for (let i = 0; i < list.length; i += perPage) pages.push({ folder: '', items: list.slice(i, i + perPage) });
+  }
+  const totalPages = pages.length;
+  const total = files.length;
+
+  $('gen-btn').disabled = true;
+  $('result-section').style.display = 'none';
+  $('progress-section').style.display = 'block';
+
+  const dateStr = new Date().toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const headerH = 10, footerH = 10;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
+  const pw = 210, ph = 297;
+  const fontSize = cols <= 6 ? 6.5 : cols >= 10 ? 4.5 : 5.5;
+  const lineH = fontSize * 0.42;
+  const labelH = showName ? lineH * 2 + 1.2 : 0;   // até 2 linhas
+  const gapX = 2.5, gapY = 2.5;
+  const contentTop = margin + headerH;
+  const contentBottom = ph - margin - footerH;
+  const cellW = (pw - 2 * margin - (cols - 1) * gapX) / cols;
+  const cellH = (contentBottom - contentTop - (rows - 1) * gapY) / rows;
+  const imgH = cellH - labelH;
+
+  const setNavy  = () => doc.setTextColor(155, 28, 28);   // cor do tema (vermelho)
+  const setGray  = () => doc.setTextColor(185, 130, 130);
+  const setLabel = () => doc.setTextColor(55, 40, 40);    // legendas em cinzento-escuro, para o [#] vermelho sobressair
+
+  function drawPageDecorations(pageNum, folder) {
+    doc.setDrawColor(155, 28, 28); doc.setLineWidth(0.5);
+    doc.line(margin, margin + headerH - 1, pw - margin, margin + headerH - 1);
+
+    let textX = margin;
+    if (logoDataURL) {
+      const lh = 7, lw = Math.min(lh * logoRatio, 30);
+      doc.addImage(logoDataURL, 'PNG', margin, margin + 0.5, lw, lh);
+      textX = margin + lw + 2;
+    }
+    doc.setFontSize(8); doc.setFont('helvetica', 'bold'); setNavy();
+    doc.text((collectorName || 'Scout Collection Portugal').toUpperCase(), textX, margin + 6);
+
+    doc.setFontSize(7.5);
+    const right = (folder || catalogName).toUpperCase();
+    doc.text(right, pw - margin, margin + 6, { align: 'right' });
+
+    doc.setDrawColor(155, 28, 28); doc.setLineWidth(0.5);
+    doc.line(margin, contentBottom + 1, pw - margin, contentBottom + 1);
+
+    const footerText = 'SCOUT COLLECTION PORTUGAL App v1.0';
+    doc.setFontSize(7); doc.setFont('helvetica', 'bold'); setNavy();
+    const ftw = doc.getTextWidth(footerText), ftx = (pw - ftw) / 2, fty = contentBottom + 6.5;
+    doc.text(footerText, ftx, fty);
+    doc.link(ftx, fty - 4, ftw, 5, { url: 'https://sites.google.com/view/scoutcollectionportugal/' });
+
+    setGray();
+    doc.text(dateStr + '   —   ' + pageNum + ' / ' + totalPages, pw - margin, fty, { align: 'right' });
+  }
+
+  function wrap(label, maxW) {
+    const lines = []; let cur = '';
+    for (const word of label.split(' ')) {
+      const t = cur ? cur + ' ' + word : word;
+      if (doc.getTextWidth(t) <= maxW) { cur = t; continue; }
+      if (cur) lines.push(cur);
+      let w = word;
+      while (w.length > 1 && doc.getTextWidth(w) > maxW) w = w.slice(0, -1);
+      if (w.length < word.length) w = w.slice(0, -1) + '…';
+      cur = w;
+    }
+    if (cur) lines.push(cur);
+    if (lines.length > 2) {
+      let l2 = lines[1] + '…';
+      while (l2.length > 2 && doc.getTextWidth(l2) > maxW) l2 = l2.slice(0, -2) + '…';
+      return [lines[0], l2];
+    }
+    return lines;
+  }
+
+  let done = 0;
+  for (let p = 0; p < pages.length; p++) {
+    if (p > 0) doc.addPage();
+    drawPageDecorations(p + 1, pages[p].folder);
+
+    for (let pos = 0; pos < pages[p].items.length; pos++) {
+      const file = pages[p].items[pos];
+      const x = margin + (pos % cols) * (cellW + gapX);
+      const y = contentTop + Math.floor(pos / cols) * (cellH + gapY);
+
+      try {
+        const img = await loadImage(file);
+        const data = imgToDataURL(img, Math.max(400, Math.round(2400 / Math.min(cols, rows))));
+        const r = Math.min(cellW / img.naturalWidth, imgH / img.naturalHeight);
+        const dw = img.naturalWidth * r, dh = img.naturalHeight * r;
+        doc.addImage(data, 'JPEG', x + (cellW - dw) / 2, y + (imgH - dh) / 2, dw, dh);
+      } catch (e) {
+        doc.setFontSize(6); doc.setTextColor(160, 40, 40);
+        doc.text('erro', x + cellW / 2, y + imgH / 2, { align: 'center' });
+      }
+
+      if (showName) {
+        const label = getLabel(file.name);
+        const hasFlag = /\[#\]/.test(label), hasProcuro = /\[@\]/.test(label);
+        doc.setFontSize(fontSize);
+        if (hasFlag || hasProcuro) { doc.setFont('helvetica', 'bold'); doc.setTextColor(180, 25, 25); }
+        else { doc.setFont('helvetica', 'normal'); setLabel(); }
+        const lines = wrap(label, cellW - 0.5);
+        const startY = y + imgH + 0.6 + lineH;
+        lines.forEach((line, li) => {
+          const tw = doc.getTextWidth(line), lx = x + (cellW - tw) / 2, ly = startY + li * lineH;
+          if (hasProcuro) { doc.setFillColor(255, 230, 0); doc.rect(lx - 0.3, ly - lineH + 0.4, tw + 0.6, lineH, 'F'); }
+          doc.text(line, lx, ly);
+        });
+      }
+
+      done++;
+      const pct = Math.round(done / total * 100);
+      $('progress-bar').style.width = pct + '%';
+      $('progress-label').textContent = done + ' / ' + total + ' imagens (' + pct + '%)';
+      if (done % 8 === 0) await new Promise(r => setTimeout(r, 0));
+    }
+  }
+
+  pdfBlob = doc.output('blob');
+  $('progress-section').style.display = 'none';
+  $('gen-btn').disabled = false;
+  $('result-msg').textContent = '✓ ' + total + ' imagens em ' + totalPages + ' página' + (totalPages !== 1 ? 's' : '') + ' — pronto a descarregar';
+  $('result-section').style.display = 'flex';
+  $('dl-btn').onclick = () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(pdfBlob); a.download = pdfName; a.click();
+  };
+}
+</script>
+</body>
+</html>
