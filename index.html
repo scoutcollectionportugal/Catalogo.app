@@ -15,12 +15,19 @@
   * { box-sizing:border-box; margin:0; padding:0; }
   body { font-family:Georgia,serif; background:#fff; color:var(--navy); min-height:100vh; display:flex; flex-direction:column; align-items:center; }
 
-  .site-header { width:100%; padding:28px 20px 20px; display:flex; flex-direction:column; align-items:center; margin-bottom:32px; }
+  .site-header { position:relative; width:100%; padding:28px 20px 0; display:flex; flex-direction:column; align-items:center; margin-bottom:28px; }
   #header-logo { width:240px; height:auto; display:none; margin:0 auto; cursor:pointer; }
   .brand-title { font-size:26px; font-weight:bold; letter-spacing:3px; text-transform:uppercase; text-align:center; line-height:1.2; cursor:pointer; }
   .brand-sub { font-size:15px; letter-spacing:3px; text-transform:uppercase; font-family:'Courier New',monospace; font-weight:bold; margin-top:12px; text-align:center; }
   .logo-hint { font-family:'Courier New',monospace; font-size:10px; color:var(--text3); margin-top:8px; }
   .logo-hint button { background:none; border:none; color:var(--navy-mid); font:inherit; cursor:pointer; text-decoration:underline; padding:0 2px; }
+
+  /* Seletor de idioma */
+  .lang-switch { margin-top:28px; display:flex; border:1px solid var(--border); border-radius:6px; overflow:hidden; }
+  .lang-switch button { background:#fff; color:var(--navy); border:none; padding:5px 10px; font:bold 11px 'Courier New',monospace; letter-spacing:1px; cursor:pointer; }
+  .lang-switch button + button { border-left:1px solid var(--border); }
+  .lang-switch button:hover { background:var(--navy-pale); }
+  .lang-switch button.active { background:var(--navy); color:#fff; }
 
   .wrap { width:100%; max-width:700px; padding:0 20px; }
   .card { background:#fff; border:1px solid var(--border-lt); border-radius:var(--radius); box-shadow:var(--shadow); padding:24px 28px; margin-bottom:16px; }
@@ -73,7 +80,12 @@
   #result-section p { font:12px 'Courier New',monospace; color:#1a5c3a; }
   .download-btn { white-space:nowrap; padding:10px 22px; background:var(--navy); color:#fff; border:none; border-radius:6px; font:12px 'Courier New',monospace; letter-spacing:1px; cursor:pointer; }
 
-  footer { width:100%; padding:28px 20px 24px; display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center; margin-top:auto; padding-top:48px; }
+  .about { width:100%; max-width:700px; padding:0 20px; margin-top:40px; text-align:center; }
+  .about p { font-size:14px; line-height:1.65; color:var(--text2); margin-bottom:12px; }
+  .about-mail { display:inline-block; margin-top:4px; font:13px 'Courier New',monospace; color:var(--navy-mid); text-decoration:none; font-weight:bold; }
+  .about-mail:hover { text-decoration:underline; }
+
+  footer { width:100%; padding:28px 20px 24px; display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center; margin-top:0; padding-top:40px; }
   footer .footer-sub { font-size:10px; letter-spacing:3px; text-transform:uppercase; font-family:'Courier New',monospace; font-weight:bold; }
   footer .footer-brand { font-size:18px; font-weight:bold; letter-spacing:3px; text-transform:uppercase; font-family:Georgia,serif; }
   footer .footer-version { font:11px 'Courier New',monospace; color:var(--text2); letter-spacing:0.5px; }
@@ -92,11 +104,16 @@
 <body>
 
 <header class="site-header">
-  <img id="header-logo" alt="Logótipo" title="Clica para mudar o logótipo">
-  <div class="brand-title" id="header-text" title="Clica para adicionar um logótipo">Scout Collection Portugal</div>
-  <div class="brand-sub">Criar um Catálogo</div>
+  <img id="header-logo" alt="Logo">
+  <div class="brand-title" id="header-text">Scout Collection Portugal</div>
+  <div class="brand-sub" data-i18n="subtitle">Criar um Catálogo</div>
+  <div class="lang-switch" role="group" aria-label="Idioma / Language">
+    <button data-lang="pt" title="Português">PT</button>
+    <button data-lang="es" title="Español">ES</button>
+    <button data-lang="en" title="English">EN</button>
+  </div>
   <div class="logo-hint" style="display:none">
-    <button id="logo-btn">adicionar logótipo</button><span id="logo-remove-wrap" style="display:none"> · <button id="logo-remove">remover</button></span>
+    <button id="logo-btn">logo</button><span id="logo-remove-wrap" style="display:none"> · <button id="logo-remove">x</button></span>
   </div>
   <input type="file" id="logo-input" class="hidden-input" accept="image/*">
 </header>
@@ -105,16 +122,16 @@
 
   <!-- Imagens -->
   <div class="card">
-    <h2>Imagens</h2>
+    <h2 data-i18n="images">Imagens</h2>
     <div class="drop-zone" id="drop-zone">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/>
       </svg>
-      <strong>Escolhe uma pasta ou arrasta-a para aqui</strong>
-      <p>JPG · PNG · GIF · BMP · WEBP — incluindo subpastas</p>
+      <strong data-i18n="dropTitle">Escolhe uma pasta ou arrasta-a para aqui</strong>
+      <p data-i18n="dropFormats">JPG · PNG · GIF · BMP · WEBP — incluindo subpastas</p>
       <div class="pick-row">
-        <button class="pick-btn" id="pick-folder">📁 Escolher pasta</button>
-        <button class="pick-btn alt" id="pick-files">Escolher imagens</button>
+        <button class="pick-btn" id="pick-folder" data-i18n="pickFolder">📁 Escolher pasta</button>
+        <button class="pick-btn alt" id="pick-files" data-i18n="pickFiles">Escolher imagens</button>
       </div>
     </div>
     <input type="file" id="folder-input" class="hidden-input" webkitdirectory directory multiple>
@@ -124,81 +141,81 @@
   <!-- Preview -->
   <div class="card" id="preview-strip">
     <div class="preview-info">
-      <span id="file-count">0 imagens</span>
-      <button class="clear-btn" id="clear-btn">✕ limpar</button>
+      <span id="file-count"></span>
+      <button class="clear-btn" id="clear-btn" data-i18n="clear">✕ limpar</button>
     </div>
     <div class="thumbs" id="thumbs"></div>
   </div>
 
   <!-- Configuração -->
   <div class="card">
-    <h2>Configuração</h2>
+    <h2 data-i18n="settings">Configuração</h2>
     <div class="options-grid">
       <div class="option-group">
-        <label>Colunas</label>
+        <label data-i18n="cols">Colunas</label>
         <select id="cols">
-          <option value="3">3 colunas</option>
-          <option value="4">4 colunas</option>
-          <option value="5">5 colunas</option>
-          <option value="6" selected>6 colunas</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6" selected>6</option>
         </select>
       </div>
       <div class="option-group">
-        <label>Linhas por página</label>
+        <label data-i18n="rows">Linhas por página</label>
         <select id="rows">
-          <option value="3">3 linhas</option>
-          <option value="4">4 linhas</option>
-          <option value="5">5 linhas</option>
-          <option value="6" selected>6 linhas</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6" selected>6</option>
         </select>
       </div>
       <div class="option-group">
-        <label>Ordenação</label>
+        <label data-i18n="sort">Ordenação</label>
         <select id="sort-order">
-          <option value="name-asc">Nome A → Z</option>
-          <option value="name-desc">Nome Z → A</option>
-          <option value="original">Ordem de seleção</option>
+          <option value="name-asc" data-i18n="sortAsc">Nome A → Z</option>
+          <option value="name-desc" data-i18n="sortDesc">Nome Z → A</option>
+          <option value="original" data-i18n="sortOrig">Ordem de seleção</option>
         </select>
       </div>
       <div class="option-group">
-        <label>Mostrar nome</label>
+        <label data-i18n="showName">Mostrar nome</label>
         <select id="show-name">
-          <option value="stem">Nome sem extensão</option>
-          <option value="full">Nome completo</option>
-          <option value="none">Não mostrar</option>
+          <option value="stem" data-i18n="nameStem">Nome sem extensão</option>
+          <option value="full" data-i18n="nameFull">Nome completo</option>
+          <option value="none" data-i18n="nameNone">Não mostrar</option>
         </select>
       </div>
       <div class="option-group">
-        <label>Margem (mm)</label>
+        <label data-i18n="margin">Margem (mm)</label>
         <select id="margin">
-          <option value="8">8 mm — compacto</option>
-          <option value="10" selected>10 mm — normal</option>
-          <option value="15">15 mm — espaçoso</option>
+          <option value="8" data-i18n="margin8">8 mm — compacto</option>
+          <option value="10" selected data-i18n="margin10">10 mm — normal</option>
+          <option value="15" data-i18n="margin15">15 mm — espaçoso</option>
         </select>
       </div>
       <div class="option-group">
-        <label>Qualidade das imagens</label>
+        <label data-i18n="quality">Qualidade das imagens</label>
         <select id="dpi">
-          <option value="150">150 dpi — ficheiro leve</option>
-          <option value="200" selected>200 dpi — normal</option>
-          <option value="300">300 dpi — alta (impressão)</option>
-          <option value="600">600 dpi — máxima (ficheiro pesado)</option>
+          <option value="150" data-i18n="dpi150">150 dpi — ficheiro leve</option>
+          <option value="200" selected data-i18n="dpi200">200 dpi — normal</option>
+          <option value="300" data-i18n="dpi300">300 dpi — alta (impressão)</option>
+          <option value="600" data-i18n="dpi600">600 dpi — máxima (ficheiro pesado)</option>
         </select>
       </div>
       <div class="option-group">
-        <label>Nome do catálogo</label>
-        <input type="text" id="pdf-name" value="" placeholder="Escreve aqui o nome do catálogo">
+        <label data-i18n="catalogName">Nome do catálogo</label>
+        <input type="text" id="pdf-name" value="" data-i18n-ph="catalogPh" placeholder="Escreve aqui o nome do catálogo">
       </div>
       <div class="option-group">
-        <label>Nome do colecionador</label>
-        <input type="text" id="footer-name-input" value="" placeholder="Escreve aqui o teu nome">
+        <label data-i18n="collector">Nome do colecionador</label>
+        <input type="text" id="footer-name-input" value="" data-i18n-ph="collectorPh" placeholder="Escreve aqui o teu nome">
       </div>
     </div>
   </div>
 
   <!-- Progresso -->
   <div class="card" id="progress-section">
-    <h2>A gerar</h2>
+    <h2 data-i18n="generating">A gerar</h2>
     <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
     <p class="progress-label" id="progress-label">0%</p>
   </div>
@@ -206,19 +223,20 @@
 </div>
 
 <div style="width:100%;max-width:700px;padding:0 20px;display:flex;flex-direction:column;gap:12px;">
-  <button class="gen-btn" id="gen-btn" disabled>Gerar Catálogo <span style="font-size:30px;font-weight:900;">→</span></button>
+  <button class="gen-btn" id="gen-btn" disabled><span data-i18n="generate">Gerar Catálogo</span> <span style="font-size:30px;font-weight:900;">→</span></button>
   <div id="result-section">
     <p id="result-msg"></p>
-    <button class="download-btn" id="dl-btn">⬇ Descarregar</button>
+    <button class="download-btn" id="dl-btn" data-i18n="download">⬇ Descarregar</button>
   </div>
 </div>
 
+
 <footer>
   <span class="footer-brand">Scout Collection Portugal</span>
-  <span class="footer-sub">Coleção Pessoal de Objetos Escutistas</span>
+  <span class="footer-sub" data-i18n="footerSub">Coleção Pessoal de Objetos Escutistas</span>
   <a class="footer-link" href="https://sites.google.com/view/scoutcollectionportugal/" target="_blank">sites.google.com/view/scoutcollectionportugal</a>
-  <span class="footer-version">App versão 1.1 (16.10.2026)</span>
-  <p class="footer-note">todos os ficheiros são processados localmente no browser — nenhuma imagem é enviada para servidores</p>
+  <span class="footer-version" data-i18n="version">App v1.2 (06.11.2026)</span>
+  <p class="footer-note" data-i18n="note">todos os ficheiros são processados localmente no browser — nenhuma imagem é enviada para servidores</p>
 </footer>
 
 <script>
@@ -230,6 +248,138 @@ let files = [], pdfBlob = null, logoDataURL = null, logoRatio = 1;
 function store(k, v) { try { v === null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} }
 function recall(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 
+/* ── Traduções ── */
+const I18N = {
+  pt: {
+    docTitle: 'Scout Collection Portugal — Criar um Catálogo',
+    subtitle: 'Criar um Catálogo',
+    images: 'Imagens',
+    dropTitle: 'Escolhe uma pasta ou arrasta-a para aqui',
+    dropFormats: 'JPG · PNG · GIF · BMP · WEBP — incluindo subpastas',
+    pickFolder: '📁 Escolher pasta',
+    pickFiles: 'Escolher imagens',
+    clear: '✕ limpar',
+    settings: 'Configuração',
+    cols: 'Colunas', colsOpt: n => n + ' colunas',
+    rows: 'Linhas por página', rowsOpt: n => n + ' linhas',
+    sort: 'Ordenação', sortAsc: 'Nome A → Z', sortDesc: 'Nome Z → A', sortOrig: 'Ordem de seleção',
+    showName: 'Mostrar nome', nameStem: 'Nome sem extensão', nameFull: 'Nome completo', nameNone: 'Não mostrar',
+    margin: 'Margem (mm)', margin8: '8 mm — compacto', margin10: '10 mm — normal', margin15: '15 mm — espaçoso',
+    quality: 'Qualidade das imagens',
+    dpi150: '150 dpi — ficheiro leve', dpi200: '200 dpi — normal', dpi300: '300 dpi — alta (impressão)', dpi600: '600 dpi — máxima (ficheiro pesado)',
+    catalogName: 'Nome do catálogo', catalogPh: 'Escreve aqui o nome do catálogo',
+    collector: 'Nome do colecionador', collectorPh: 'Escreve aqui o teu nome',
+    generating: 'A gerar',
+    generate: 'Gerar Catálogo',
+    download: '⬇ Descarregar',
+    about1: 'Uma App online gratuita para ajudar colecionadores a organizar e catalogar os seus artigos, usando as suas próprias fotografias e imagens.',
+    about2: 'Criada por um colecionador, para quem coleciona.',
+    footerSub: 'Coleção Pessoal de Objetos Escutistas',
+    version: 'App v1.2 (06.11.2026)',
+    note: 'todos os ficheiros são processados localmente no browser — nenhuma imagem é enviada para servidores',
+    count: (n, f) => n + (n === 1 ? ' imagem' : ' imagens') + (f > 1 ? ' em ' + f + ' pastas' : ''),
+    progress: (d, t, p) => d + ' / ' + t + ' imagens (' + p + '%)',
+    result: (n, p) => '✓ ' + n + (n === 1 ? ' imagem' : ' imagens') + ' em ' + p + (p === 1 ? ' página' : ' páginas') + ' — pronto a descarregar',
+    libError: 'Não foi possível carregar a biblioteca de PDF. Abre a app com ligação à internet.',
+    imgError: 'erro',
+    pdfFooter: 'SCOUT COLLECTION PORTUGAL - CATÁLOGO APP v1.2',
+    defaultFile: 'catalogo',
+    locale: 'pt-PT'
+  },
+  es: {
+    docTitle: 'Scout Collection Portugal — Crear un Catálogo',
+    subtitle: 'Crear un Catálogo',
+    images: 'Imágenes',
+    dropTitle: 'Elige una carpeta o arrástrala aquí',
+    dropFormats: 'JPG · PNG · GIF · BMP · WEBP — incluidas subcarpetas',
+    pickFolder: '📁 Elegir carpeta',
+    pickFiles: 'Elegir imágenes',
+    clear: '✕ borrar',
+    settings: 'Configuración',
+    cols: 'Columnas', colsOpt: n => n + ' columnas',
+    rows: 'Filas por página', rowsOpt: n => n + ' filas',
+    sort: 'Orden', sortAsc: 'Nombre A → Z', sortDesc: 'Nombre Z → A', sortOrig: 'Orden de selección',
+    showName: 'Mostrar nombre', nameStem: 'Nombre sin extensión', nameFull: 'Nombre completo', nameNone: 'No mostrar',
+    margin: 'Margen (mm)', margin8: '8 mm — compacto', margin10: '10 mm — normal', margin15: '15 mm — amplio',
+    quality: 'Calidad de las imágenes',
+    dpi150: '150 dpi — archivo ligero', dpi200: '200 dpi — normal', dpi300: '300 dpi — alta (impresión)', dpi600: '600 dpi — máxima (archivo pesado)',
+    catalogName: 'Nombre del catálogo', catalogPh: 'Escribe aquí el nombre del catálogo',
+    collector: 'Nombre del coleccionista', collectorPh: 'Escribe aquí tu nombre',
+    generating: 'Generando',
+    generate: 'Generar Catálogo',
+    download: '⬇ Descargar',
+    about1: 'Una App online gratuita para ayudar a los coleccionistas a organizar y catalogar sus artículos, usando sus propias fotografías e imágenes.',
+    about2: 'Creada por un coleccionista, para quienes coleccionan.',
+    footerSub: 'Colección Personal de Objetos Scouts',
+    version: 'App v1.2 (06.11.2026)',
+    note: 'todos los archivos se procesan localmente en el navegador — ninguna imagen se envía a servidores',
+    count: (n, f) => n + (n === 1 ? ' imagen' : ' imágenes') + (f > 1 ? ' en ' + f + ' carpetas' : ''),
+    progress: (d, t, p) => d + ' / ' + t + ' imágenes (' + p + '%)',
+    result: (n, p) => '✓ ' + n + (n === 1 ? ' imagen' : ' imágenes') + ' en ' + p + (p === 1 ? ' página' : ' páginas') + ' — listo para descargar',
+    libError: 'No se pudo cargar la biblioteca de PDF. Abre la app con conexión a internet.',
+    imgError: 'error',
+    pdfFooter: 'SCOUT COLLECTION PORTUGAL - CATÁLOGO APP v1.2',
+    defaultFile: 'catalogo',
+    locale: 'es-ES'
+  },
+  en: {
+    docTitle: 'Scout Collection Portugal — Create a Catalogue',
+    subtitle: 'Create a Catalogue',
+    images: 'Images',
+    dropTitle: 'Choose a folder or drag it here',
+    dropFormats: 'JPG · PNG · GIF · BMP · WEBP — including subfolders',
+    pickFolder: '📁 Choose folder',
+    pickFiles: 'Choose images',
+    clear: '✕ clear',
+    settings: 'Settings',
+    cols: 'Columns', colsOpt: n => n + ' columns',
+    rows: 'Rows per page', rowsOpt: n => n + ' rows',
+    sort: 'Sort order', sortAsc: 'Name A → Z', sortDesc: 'Name Z → A', sortOrig: 'Selection order',
+    showName: 'Show name', nameStem: 'Name without extension', nameFull: 'Full name', nameNone: "Don't show",
+    margin: 'Margin (mm)', margin8: '8 mm — compact', margin10: '10 mm — normal', margin15: '15 mm — spacious',
+    quality: 'Image quality',
+    dpi150: '150 dpi — small file', dpi200: '200 dpi — normal', dpi300: '300 dpi — high (print)', dpi600: '600 dpi — maximum (large file)',
+    catalogName: 'Catalogue name', catalogPh: 'Type the catalogue name here',
+    collector: 'Collector name', collectorPh: 'Type your name here',
+    generating: 'Generating',
+    generate: 'Generate Catalogue',
+    download: '⬇ Download',
+    about1: 'A free online App to help collectors organise and catalogue their items, using their own photos and images.',
+    about2: 'Made by a collector, for those who collect.',
+    footerSub: 'Personal Collection of Scouting Items',
+    version: 'App v1.2 (06.11.2026)',
+    note: 'all files are processed locally in the browser — no images are uploaded to servers',
+    count: (n, f) => n + (n === 1 ? ' image' : ' images') + (f > 1 ? ' in ' + f + ' folders' : ''),
+    progress: (d, t, p) => d + ' / ' + t + ' images (' + p + '%)',
+    result: (n, p) => '✓ ' + n + (n === 1 ? ' image' : ' images') + ' on ' + p + (p === 1 ? ' page' : ' pages') + ' — ready to download',
+    libError: 'The PDF library could not be loaded. Open the app with an internet connection.',
+    imgError: 'error',
+    pdfFooter: 'SCOUT COLLECTION PORTUGAL - CATALOGUE APP v1.2',
+    defaultFile: 'catalogue',
+    locale: 'en-GB'
+  }
+};
+
+let lang = recall('scm-lang');
+if (!I18N[lang]) lang = 'pt';
+const t = key => I18N[lang][key];
+
+function applyLang(newLang) {
+  if (I18N[newLang]) lang = newLang;
+  store('scm-lang', lang);
+  document.documentElement.lang = lang;
+  document.title = t('docTitle');
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+  [...$('cols').options].forEach(o => o.textContent = t('colsOpt')(o.value));
+  [...$('rows').options].forEach(o => o.textContent = t('rowsOpt')(o.value));
+  document.querySelectorAll('.lang-switch button').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  renderCount();
+  if (lastResult) $('result-msg').textContent = t('result')(lastResult.n, lastResult.p);
+}
+document.querySelectorAll('.lang-switch button').forEach(b => b.onclick = () => applyLang(b.dataset.lang));
+let lastResult = null;
+
 /* ── Logótipo ── */
 function applyLogo(dataURL) {
   logoDataURL = dataURL;
@@ -240,12 +390,10 @@ function applyLogo(dataURL) {
     probe.src = dataURL;
     img.src = dataURL; img.style.display = 'block';
     $('header-text').style.display = 'none';
-    $('logo-btn').textContent = 'mudar logótipo';
     $('logo-remove-wrap').style.display = 'inline';
   } else {
     img.removeAttribute('src'); img.style.display = 'none';
     $('header-text').style.display = 'block';
-    $('logo-btn').textContent = 'adicionar logótipo';
     $('logo-remove-wrap').style.display = 'none';
   }
 }
@@ -264,15 +412,8 @@ $('logo-input').onchange = async () => {
 };
 applyLogo(recall('scm-logo'));
 
-/* ── Nome no rodapé ── */
-(function () {
-  const inp = $('footer-name-input');
-  store('scm-footer-name', null);   // começa sempre vazio, com o texto de ajuda
-  function sync() {
-    store('scm-footer-name', inp.value);
-  }
-  inp.addEventListener('input', sync); sync();
-})();
+/* ── Nome do colecionador: começa sempre vazio ── */
+store('scm-footer-name', null);
 
 /* ── Seleção de imagens ── */
 const dropZone = $('drop-zone');
@@ -282,7 +423,7 @@ function setNameFromFolder(path) {
   const root = (path || '').split('/')[0];
   if (root && path.includes('/')) $('pdf-name').value = root;
 }
-$('folder-input').onchange = () => { const fl = $('folder-input').files; if (fl[0]) setNameFromFolder(fl[0].webkitRelativePath); addFiles([...$('folder-input').files].map(f => withPath(f, f.webkitRelativePath))); $('folder-input').value = ''; };
+$('folder-input').onchange = () => { const fl = $('folder-input').files; if (fl[0]) setNameFromFolder(fl[0].webkitRelativePath); addFiles([...fl].map(f => withPath(f, f.webkitRelativePath))); $('folder-input').value = ''; };
 $('file-input').onchange   = () => { addFiles([...$('file-input').files].map(f => withPath(f, f.name))); $('file-input').value = ''; };
 
 function withPath(f, path) { f._path = path || f.name; return f; }
@@ -326,7 +467,7 @@ function addFiles(newFiles) {
 
 $('clear-btn').onclick = () => {
   files = []; renderPreviews(); updateGenBtn();
-  $('result-section').style.display = 'none';
+  $('result-section').style.display = 'none'; lastResult = null;
 };
 
 function folderOf(f) {
@@ -336,15 +477,18 @@ function folderOf(f) {
   return parts.join(' / ');
 }
 
+function renderCount() {
+  if (!files.length) return;
+  $('file-count').textContent = t('count')(files.length, new Set(files.map(folderOf)).size);
+}
+
 function renderPreviews() {
   const thumbs = $('thumbs');
   thumbs.querySelectorAll('img').forEach(i => URL.revokeObjectURL(i.src));
   thumbs.innerHTML = '';
   if (!files.length) { $('preview-strip').style.display = 'none'; return; }
   $('preview-strip').style.display = 'block';
-  const folders = new Set(files.map(folderOf)).size;
-  $('file-count').textContent = files.length + ' imagem' + (files.length !== 1 ? 's' : '') +
-    (folders > 1 ? ' em ' + folders + ' pastas' : '');
+  renderCount();
   files.slice(0, 120).forEach(f => {
     const d = document.createElement('div'); d.className = 'thumb'; d.title = f._path;
     const i = document.createElement('img'); i.loading = 'lazy'; i.src = URL.createObjectURL(f);
@@ -401,34 +545,22 @@ $('gen-btn').onclick = generatePDF;
 
 async function generatePDF() {
   const { jsPDF } = window.jspdf || {};
-  if (!jsPDF) { alert('Não foi possível carregar a biblioteca de PDF. Abre a app com ligação à internet pelo menos uma vez.'); return; }
+  if (!jsPDF) { alert(t('libError')); return; }
 
   const cols    = parseInt($('cols').value);
   const rows    = parseInt($('rows').value);
   const perPage = cols * rows;
   const margin  = parseFloat($('margin').value);
-  const catalogName   = $('pdf-name').value.trim() || 'catalogo-miniaturas';
+  const catalogName   = $('pdf-name').value.trim() || t('defaultFile');
   const pdfName       = catalogName + '.pdf';
   const showName      = $('show-name').value !== 'none';
   const collectorName = $('footer-name-input').value.trim();
-  const grouped       = false;
   const dpi           = parseInt($('dpi').value);
   const jpegQuality   = { 150: 0.75, 200: 0.82, 300: 0.88, 600: 0.92 }[dpi] || 0.82;
 
-  // Construir páginas
+  const list = sortFiles(files);
   const pages = [];
-  if (grouped) {
-    const groups = new Map();
-    files.forEach(f => { const k = folderOf(f); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(f); });
-    const keys = [...groups.keys()].sort((a, b) => a.localeCompare(b, 'pt', { numeric: true }));
-    keys.forEach(k => {
-      const list = sortFiles(groups.get(k));
-      for (let i = 0; i < list.length; i += perPage) pages.push({ folder: k, items: list.slice(i, i + perPage) });
-    });
-  } else {
-    const list = sortFiles(files);
-    for (let i = 0; i < list.length; i += perPage) pages.push({ folder: '', items: list.slice(i, i + perPage) });
-  }
+  for (let i = 0; i < list.length; i += perPage) pages.push(list.slice(i, i + perPage));
   const totalPages = pages.length;
   const total = files.length;
 
@@ -436,11 +568,11 @@ async function generatePDF() {
   $('result-section').style.display = 'none';
   $('progress-section').style.display = 'block';
 
-  const dateStr = new Date().toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const dateStr = new Date().toLocaleDateString(t('locale'), { day: '2-digit', month: '2-digit', year: 'numeric' });
   const headerH = 10, footerH = 10;
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
   const pw = 210, ph = 297;
-  const fontSize = cols <= 6 ? 6.5 : cols >= 10 ? 4.5 : 5.5;
+  const fontSize = 6.5;
   const lineH = fontSize * 0.42;
   const labelH = showName ? lineH * 2 + 1.2 : 0;   // até 2 linhas
   const gapX = 2.5, gapY = 2.5;
@@ -450,11 +582,11 @@ async function generatePDF() {
   const cellH = (contentBottom - contentTop - (rows - 1) * gapY) / rows;
   const imgH = cellH - labelH;
 
-  const setNavy  = () => doc.setTextColor(155, 28, 28);   // cor do tema (vermelho)
+  const setTheme = () => doc.setTextColor(155, 28, 28);   // cor do tema (vermelho)
   const setGray  = () => doc.setTextColor(185, 130, 130);
   const setLabel = () => doc.setTextColor(55, 40, 40);    // legendas em cinzento-escuro, para o [#] vermelho sobressair
 
-  function drawPageDecorations(pageNum, folder) {
+  function drawPageDecorations(pageNum) {
     doc.setDrawColor(155, 28, 28); doc.setLineWidth(0.5);
     doc.line(margin, margin + headerH - 1, pw - margin, margin + headerH - 1);
 
@@ -464,18 +596,17 @@ async function generatePDF() {
       doc.addImage(logoDataURL, 'PNG', margin, margin + 0.5, lw, lh);
       textX = margin + lw + 2;
     }
-    doc.setFontSize(8); doc.setFont('helvetica', 'bold'); setNavy();
+    doc.setFontSize(8); doc.setFont('helvetica', 'bold'); setTheme();
     doc.text((collectorName || 'Scout Collection Portugal').toUpperCase(), textX, margin + 6);
 
     doc.setFontSize(7.5);
-    const right = (folder || catalogName).toUpperCase();
-    doc.text(right, pw - margin, margin + 6, { align: 'right' });
+    doc.text(catalogName.toUpperCase(), pw - margin, margin + 6, { align: 'right' });
 
     doc.setDrawColor(155, 28, 28); doc.setLineWidth(0.5);
     doc.line(margin, contentBottom + 1, pw - margin, contentBottom + 1);
 
-    const footerText = 'SCOUT COLLECTION PORTUGAL - CATÁLOGO APP v1.0';
-    doc.setFontSize(7); doc.setFont('helvetica', 'bold'); setNavy();
+    const footerText = t('pdfFooter');
+    doc.setFontSize(7); doc.setFont('helvetica', 'bold'); setTheme();
     const ftw = doc.getTextWidth(footerText), ftx = (pw - ftw) / 2, fty = contentBottom + 6.5;
     doc.text(footerText, ftx, fty);
     doc.link(ftx, fty - 4, ftw, 5, { url: 'https://sites.google.com/view/scoutcollectionportugal/' });
@@ -487,8 +618,8 @@ async function generatePDF() {
   function wrap(label, maxW) {
     const lines = []; let cur = '';
     for (const word of label.split(' ')) {
-      const t = cur ? cur + ' ' + word : word;
-      if (doc.getTextWidth(t) <= maxW) { cur = t; continue; }
+      const tx = cur ? cur + ' ' + word : word;
+      if (doc.getTextWidth(tx) <= maxW) { cur = tx; continue; }
       if (cur) lines.push(cur);
       let w = word;
       while (w.length > 1 && doc.getTextWidth(w) > maxW) w = w.slice(0, -1);
@@ -507,10 +638,10 @@ async function generatePDF() {
   let done = 0;
   for (let p = 0; p < pages.length; p++) {
     if (p > 0) doc.addPage();
-    drawPageDecorations(p + 1, pages[p].folder);
+    drawPageDecorations(p + 1);
 
-    for (let pos = 0; pos < pages[p].items.length; pos++) {
-      const file = pages[p].items[pos];
+    for (let pos = 0; pos < pages[p].length; pos++) {
+      const file = pages[p][pos];
       const x = margin + (pos % cols) * (cellW + gapX);
       const y = contentTop + Math.floor(pos / cols) * (cellH + gapY);
 
@@ -524,7 +655,7 @@ async function generatePDF() {
         doc.addImage(data, 'JPEG', x + (cellW - dw) / 2, y + (imgH - dh) / 2, dw, dh);
       } catch (e) {
         doc.setFontSize(6); doc.setTextColor(160, 40, 40);
-        doc.text('erro', x + cellW / 2, y + imgH / 2, { align: 'center' });
+        doc.text(t('imgError'), x + cellW / 2, y + imgH / 2, { align: 'center' });
       }
 
       if (showName) {
@@ -545,7 +676,7 @@ async function generatePDF() {
       done++;
       const pct = Math.round(done / total * 100);
       $('progress-bar').style.width = pct + '%';
-      $('progress-label').textContent = done + ' / ' + total + ' imagens (' + pct + '%)';
+      $('progress-label').textContent = t('progress')(done, total, pct);
       if (done % 8 === 0) await new Promise(r => setTimeout(r, 0));
     }
   }
@@ -553,13 +684,16 @@ async function generatePDF() {
   pdfBlob = doc.output('blob');
   $('progress-section').style.display = 'none';
   $('gen-btn').disabled = false;
-  $('result-msg').textContent = '✓ ' + total + ' imagens em ' + totalPages + ' página' + (totalPages !== 1 ? 's' : '') + ' — pronto a descarregar';
+  lastResult = { n: total, p: totalPages };
+  $('result-msg').textContent = t('result')(total, totalPages);
   $('result-section').style.display = 'flex';
   $('dl-btn').onclick = () => {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(pdfBlob); a.download = pdfName; a.click();
   };
 }
+
+applyLang(lang);
 </script>
 </body>
 </html>
